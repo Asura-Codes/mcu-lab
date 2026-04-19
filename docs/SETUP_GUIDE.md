@@ -1,10 +1,8 @@
 # Setup Guide
 
-This guide covers the development environment and building firmware for each supported platform.
+How to build firmware for each platform. For flashing and debugging, see [OpenOCD_guide.md](OpenOCD_guide.md).
 
-**For flashing and debugging**, see **[OpenOCD_guide.md](OpenOCD_guide.md)**.
-
-## Table of Contents
+## Contents
 
 - [Environment Overview](#environment-overview)
 - [Initial Setup](#initial-setup)
@@ -19,56 +17,72 @@ This guide covers the development environment and building firmware for each sup
 
 ## Environment Overview
 
-Building runs inside a **Docker DevContainer** (Ubuntu 24.04). The container image bundles all toolchains and is built from `.devcontainer/Dockerfile`. The Windows host handles flashing and debugging via OpenOCD and other host tools.
+All building happens inside a Docker container (Ubuntu 24.04). The container image is about 26 GB and includes these toolchains:
 
-| Toolchain                     | Version      | Location in container        |
+| Toolchain                     | Version      | Location                     |
 | ----------------------------- | ------------ | ---------------------------- |
 | ESP-IDF                       | release/v6.0 | `/opt/esp/idf`               |
 | Pico SDK                      | 2.2.0        | `/opt/pico-sdk`              |
+| Zephyr RTOS                   | v4.2.2       | `/opt/zephyrproject/zephyr`  |
+| Zephyr SDK                    | 0.17.4       | `/opt/zephyr-sdk-0.17.4`     |
 | ARM GCC (`arm-none-eabi-gcc`) | system       | `PATH`                       |
 | Arduino CLI                   | 1.4.1        | `/usr/local/bin/arduino-cli` |
 | CMake / Ninja / Make          | system       | `PATH`                       |
+| west (Zephyr meta-tool)       | latest       | `PATH`                       |
 
-Pre-set environment variables:
+Environment variables are already set:
 
-| Variable         | Value           |
-| ---------------- | --------------- |
-| `IDF_PATH`       | `/opt/esp/idf`  |
-| `IDF_TOOLS_PATH` | `/opt/esp`      |
-| `PICO_SDK_PATH`  | `/opt/pico-sdk` |
+| Variable                 | Value                       |
+| ------------------------ | --------------------------- |
+| `IDF_PATH`               | `/opt/esp/idf`              |
+| `IDF_TOOLS_PATH`         | `/opt/esp`                  |
+| `PICO_SDK_PATH`          | `/opt/pico-sdk`             |
+| `ZEPHYR_BASE`            | `/opt/zephyrproject/zephyr` |
+| `ZEPHYR_SDK_INSTALL_DIR` | `/opt/zephyr-sdk-0.17.4`    |
+
+Flashing and debugging run on Windows with direct USB access. The container only builds firmware.
 
 ---
 
 ## Initial Setup
 
-### 1. Build or Pull the Container Image
+### 1. Get the Container Image
 
-The container image is built from `.devcontainer/Dockerfile`. Build it with the included script:
+**Option A: Pull from DockerHub** (recommended, faster):
 
 ```powershell
-# Windows host
+docker pull asuracodes/mcu-lab:base
+```
+
+**Option B: Build locally** (if you want to modify the Dockerfile):
+
+```powershell
 .\scripts\build-base-image.ps1
 ```
 
-This tags the image as `asuracodes/mcu-lab:base`. The base image is reused every time you reopen the DevContainer, so you only need to rebuild when the Dockerfile changes.
+Either way, the image is tagged as `asuracodes/mcu-lab:base`.
 
 ### 2. Open the DevContainer Workspace
 
-1. Open VS Code in the repository root
+1. Open `DevContainer.code-workspace` in VS Code
 2. Press `F1` → **Dev Containers: Reopen in Container**
-3. VS Code connects to the running container
+3. Wait for VS Code to connect (first time takes a minute)
 
 ### 3. Verify Toolchains
 
-Inside the container terminal:
+Open a terminal in the container:
 
 ```bash
-# ESP-IDF (requires sourcing first)
+# ESP-IDF (needs activation first)
 get_idf
 idf.py --version
 
-# Pico SDK path
-echo $PICO_SDK_PATH     # /opt/pico-sdk
+# Pico SDK
+echo $PICO_SDK_PATH
+
+# Zephyr
+echo $ZEPHYR_BASE
+west --version
 
 # ARM GCC
 arm-none-eabi-gcc --version
@@ -77,48 +91,55 @@ arm-none-eabi-gcc --version
 arduino-cli version
 ```
 
+If these commands work, you're ready to build.
+
 ---
 
 ## ESP32 Family (ESP-IDF)
 
-Supported targets: `esp32`, `esp32s2`, `esp32s3`, `esp32c3`, `esp32c6`
-ESP8266 is handled via Arduino CLI (see [Arduino](#arduino-esp8266--uno) section).
+Covers: `esp32`, `esp32-wroom32`, `esp32-c3`, `esp32-c6`, `esp32-s2`, `esp32-s3`
+
+ESP8266 uses Arduino CLI instead (see [Arduino section](#arduino-esp8266--uno)).
 
 ### Activate ESP-IDF
 
-Required once per terminal session:
+ESP-IDF tools aren't on PATH by default. Activate them once per terminal session:
 
 ```bash
 get_idf
 # or: source /opt/esp/idf/export.sh
 ```
 
+The `get_idf` alias is shorter and does the same thing.
+
 ### Build
 
 ```bash
 cd templates/esp32-c3
-idf.py set-target esp32c3   # first time only; change to match your chip
+idf.py set-target esp32c3   # first time only
 idf.py build
 ```
 
-**Build outputs** (`build/`):
+Change `esp32c3` to match your chip (`esp32`, `esp32s2`, `esp32s3`, `esp32c6`).
+
+**Build outputs** in `build/`:
 - `bootloader/bootloader.bin`
 - `partition_table/partition-table.bin`
-- `<project>.bin` — application binary
-- `<project>.elf` — with debug symbols
+- `<project>.bin` — application
+- `<project>.elf` — debug symbols
 
-### Useful Commands
+### Commands
 
 ```bash
-idf.py menuconfig       # interactive config
-idf.py size             # binary size breakdown
-idf.py fullclean        # wipe build + config
-idf.py clean            # clean build artifacts only
+idf.py menuconfig       # configure project options
+idf.py size             # show binary size
+idf.py fullclean        # delete build + sdkconfig
+idf.py clean            # delete build artifacts only
 ```
 
-### Build Task
+### Tasks
 
-In `DevContainer.code-workspace`: **Terminal → Run Task → Build All ESP32 Templates**
+Each ESP32 template has `.vscode/tasks.json` with build/clean/menuconfig tasks. Or use the workspace task: **Terminal → Run Task → Build All ESP32 Templates**
 
 ---
 
@@ -133,18 +154,18 @@ cmake ..
 make -j$(nproc)
 ```
 
-**Build outputs** (`build/`):
-- `<project>.elf` — with debug symbols
-- `<project>.uf2` — drag-and-drop flash image
+**Build outputs** in `build/`:
+- `<project>.elf` — debug symbols
+- `<project>.uf2` — drag-and-drop to BOOTSEL drive
 - `<project>.bin` — raw binary
 
-### Build Task
+### Tasks
 
-In `DevContainer.code-workspace`: **Terminal → Run Task → Build All Pico Templates**
+Each Pico template has `.vscode/tasks.json` with configure/build/clean tasks. Or use: **Terminal → Run Task → Build All Pico Templates**
 
-### Customise CMakeLists.txt
+### Add SDK Libraries
 
-Add SDK libraries as needed:
+Edit `CMakeLists.txt`:
 
 ```cmake
 target_link_libraries(rp2040_template
@@ -159,7 +180,7 @@ target_link_libraries(rp2040_template
 
 ## STM32 (ARM Cortex-M)
 
-Supported: `stm32f103`, `stm32f411`, `stm32f412`, `stm32g431`, `stm32h503` — all use Zephyr RTOS.
+All STM32 templates use Zephyr RTOS: `stm32f103`, `stm32f411`, `stm32f412`, `stm32g431`, `stm32h503`
 
 ### Build
 
@@ -169,7 +190,7 @@ cmake -B build -DBOARD=stm32_min_dev .
 cmake --build build -j4
 ```
 
-Board names per template:
+Board names:
 
 | Template  | `-DBOARD=`             |
 | --------- | ---------------------- |
@@ -179,19 +200,19 @@ Board names per template:
 | stm32g431 | `weact_stm32g431_core` |
 | stm32h503 | `nucleo_h503rb`        |
 
-**Build outputs** (`build/zephyr/`):
-- `zephyr.elf` — with debug symbols
+**Build outputs** in `build/zephyr/`:
+- `zephyr.elf` — debug symbols
 - `zephyr.bin` — raw binary
 
-### Build Task
+### Tasks
 
-In `DevContainer.code-workspace`: **Terminal → Run Task → Build All STM32 Templates**
+Each STM32 template has `.vscode/tasks.json` with configure/build/menuconfig/clean tasks. Or use: **Terminal → Run Task → Build All STM32 Templates**
 
 ---
 
 ## nRF52840 (Zephyr)
 
-Template: `nrf52840` — targets the Pro Micro nRF52840 board.
+Targets the Pro Micro nRF52840 board.
 
 ### Build
 
@@ -200,15 +221,17 @@ cd templates/nrf52840
 west build -b promicro_nrf52840
 ```
 
-**Build outputs** (`build/zephyr/`):
-- `zephyr.elf` — with debug symbols
+**Build outputs** in `build/zephyr/`:
+- `zephyr.elf` — debug symbols
 - `zephyr.hex` — Intel hex for flashing
 
 ---
 
 ## Arduino (ESP8266 / Uno)
 
-Arduino builds use the repo-local Arduino CLI. Cores are pre-installed in the container (`esp8266:esp8266`, `arduino:avr`).
+Templates: `esp8266`, `esp8266-d1mini`, `arduino-uno`
+
+Uses the repo-local Arduino CLI. Cores are pre-installed in the container (`esp8266:esp8266`, `arduino:avr`).
 
 ### Build
 
@@ -217,11 +240,11 @@ cd templates/esp8266-d1mini   # or esp8266, arduino-uno
 ./build.sh
 ```
 
-**Build outputs** (`build/`): `.elf`, `.bin` (or `.hex` for AVR)
+**Build outputs** in `build/`: `.elf`, `.bin` (or `.hex` for AVR)
 
-### Build Task
+### Tasks
 
-In `DevContainer.code-workspace`: **Terminal → Run Task → Build All Arduino Templates**
+Use: **Terminal → Run Task → Build All Arduino Templates**
 
 ---
 
@@ -229,7 +252,7 @@ In `DevContainer.code-workspace`: **Terminal → Run Task → Build All Arduino 
 
 ### `idf.py: command not found`
 
-ESP-IDF tools are not on PATH until activated:
+ESP-IDF isn't on PATH until you activate it:
 
 ```bash
 get_idf
@@ -237,29 +260,34 @@ get_idf
 
 ### CMake can't find Pico SDK
 
+Check the environment variable:
+
 ```bash
-echo $PICO_SDK_PATH   # must be /opt/pico-sdk
+echo $PICO_SDK_PATH   # should show /opt/pico-sdk
 ```
 
-If empty, you are likely not inside the DevContainer. Reconnect via **Dev Containers: Reopen in Container**.
+If it's empty, you're not in the DevContainer. Reopen with **Dev Containers: Reopen in Container**.
 
-### Stale build after toolchain change
+### Build fails after changing toolchain
+
+Clean everything:
 
 ```bash
 # ESP32
 idf.py fullclean && idf.py build
 
 # Pico / STM32
-rm -rf build && mkdir build && cd build && cmake .. && make
+rm -rf build
+cmake -B build && cmake --build build
 ```
 
-### Container image out of date
+### Container image is outdated
 
-Rebuild the image after Dockerfile changes:
+If you modified the Dockerfile, rebuild:
 
 ```powershell
 .\scripts\build-base-image.ps1
 ```
 
-Then **Dev Containers: Rebuild Container** in VS Code.
+Then in VS Code: **Dev Containers: Rebuild Container**
 

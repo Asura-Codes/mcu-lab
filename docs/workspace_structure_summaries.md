@@ -22,8 +22,8 @@ The repository is organized into distinct functional areas:
 
 **Key Details:**
 - Base image: `asuracodes/mcu-lab:base` (~26 GB)
-- Contains: ESP-IDF 6.0, Pico SDK 2.2.0, Zephyr, ARM GCC, Arduino CLI 1.4.1
-- Environment variables preset: `IDF_PATH`, `PICO_SDK_PATH`, `IDF_TOOLS_PATH`
+- Contains: ESP-IDF 6.0, Pico SDK 2.2.0, Zephyr RTOS 4.2.2, Zephyr SDK 0.17.4, ARM GCC, Arduino CLI 1.4.1, west
+- Environment variables preset: `IDF_PATH`, `PICO_SDK_PATH`, `IDF_TOOLS_PATH`, `ZEPHYR_BASE`, `ZEPHYR_SDK_INSTALL_DIR`
 - Docker volume mounts workspace to `/workspace`
 
 ### Templates (`templates/`)
@@ -198,11 +198,13 @@ Each template's `.vscode/tasks.json` provides platform-specific build tasks:
 
 ### Container Environment
 
-| Variable         | Value           | Set By     |
-| ---------------- | --------------- | ---------- |
-| `IDF_PATH`       | `/opt/esp/idf`  | Dockerfile |
-| `IDF_TOOLS_PATH` | `/opt/esp`      | Dockerfile |
-| `PICO_SDK_PATH`  | `/opt/pico-sdk` | Dockerfile |
+| Variable                 | Value                       | Set By     |
+| ------------------------ | --------------------------- | ---------- |
+| `IDF_PATH`               | `/opt/esp/idf`              | Dockerfile |
+| `IDF_TOOLS_PATH`         | `/opt/esp`                  | Dockerfile |
+| `PICO_SDK_PATH`          | `/opt/pico-sdk`             | Dockerfile |
+| `ZEPHYR_BASE`            | `/opt/zephyrproject/zephyr` | Dockerfile |
+| `ZEPHYR_SDK_INSTALL_DIR` | `/opt/zephyr-sdk-0.17.4`    | Dockerfile |
 
 ### Windows Scripts (PowerShell)
 

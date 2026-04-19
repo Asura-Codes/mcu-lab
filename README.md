@@ -56,8 +56,9 @@ I use two VS Code workspaces because Docker USB passthrough on Windows doesn't w
 The container pulls from `asuracodes/mcu-lab:base` and includes:
 - ESP-IDF 6.0 at `/opt/esp/idf`
 - Pico SDK 2.2.0 at `/opt/pico-sdk`
-- Zephyr RTOS
-- ARM GCC, CMake, Ninja, Arduino CLI
+- Zephyr RTOS 4.2.2 at `/opt/zephyrproject/zephyr`
+- Zephyr SDK 0.17.4 at `/opt/zephyr-sdk-0.17.4`
+- ARM GCC, CMake, Ninja, west, Arduino CLI
 
 ## Building (in the Container)
 

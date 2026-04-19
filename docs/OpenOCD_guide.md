@@ -1,13 +1,11 @@
-# OpenOCD Guide - Flashing and Debugging
+# OpenOCD Guide
 
-This guide explains how the `Windows.code-workspace` tasks and the PowerShell scripts under `scripts/` work together to drive OpenOCD on the Windows host.
+How the Windows tasks and PowerShell scripts work together to flash and debug firmware. For building, see [SETUP_GUIDE.md](SETUP_GUIDE.md).
 
-**For building projects**, see **[SETUP_GUIDE.md](SETUP_GUIDE.md)**.
+## Contents
 
-## Table of Contents
-
-- [OpenOCD Guide - Flashing and Debugging](#openocd-guide---flashing-and-debugging)
-  - [Table of Contents](#table-of-contents)
+- [OpenOCD Guide](#openocd-guide)
+  - [Contents](#contents)
   - [How It Works](#how-it-works)
   - [OpenOCD Executables — path.ps1](#openocd-executables--pathps1)
   - [Template Selection — template.ps1](#template-selection--templateps1)
@@ -16,21 +14,21 @@ This guide explains how the `Windows.code-workspace` tasks and the PowerShell sc
     - [OpenOCD: Start Server](#openocd-start-server)
     - [OpenOCD: Flash (Interactive)](#openocd-flash-interactive)
     - [OpenOCD: Detect Hardware](#openocd-detect-hardware)
-    - [OpenOCD: Target Info / Target Info + Select](#openocd-target-info--target-info--select)
-  - [Debugging from the DevContainer](#debugging-from-the-devcontainer)
-  - [Environment Variables Reference](#environment-variables-reference)
+    - [OpenOCD: Target Info](#openocd-target-info)
+  - [Debugging from the Container](#debugging-from-the-container)
+  - [Environment Variables](#environment-variables)
   - [Troubleshooting](#troubleshooting)
     - [Script exits with "OPENOCD\_EXE not set or not found"](#script-exits-with-openocd_exe-not-set-or-not-found)
     - ["No interface configs discovered"](#no-interface-configs-discovered)
-    - [GDB "Connection refused" from the container](#gdb-connection-refused-from-the-container)
+    - [GDB "Connection refused" from container](#gdb-connection-refused-from-container)
     - [Detect Hardware finds nothing](#detect-hardware-finds-nothing)
-    - [Flash fails for ESP32 with incorrect offsets](#flash-fails-for-esp32-with-incorrect-offsets)
+    - [Flash fails for ESP32 with wrong offsets](#flash-fails-for-esp32-with-wrong-offsets)
 
 ---
 
 ## How It Works
 
-OpenOCD must run on the **Windows host** because it requires direct USB access to hardware debuggers. The GDB client inside the Docker DevContainer connects to the OpenOCD server over TCP.
+OpenOCD runs on Windows because it needs direct USB access to debug adapters. USB passthrough to Docker on Windows isn't reliable enough. The GDB client in the container connects to OpenOCD over TCP.
 
 ```
 Windows host
@@ -47,33 +45,33 @@ Windows host
   └──────────────────────────────────────────────────────┘
 ```
 
-All tasks in `Windows.code-workspace` delegate to PowerShell scripts in `scripts/`. Most scripts share a common initialisation chain:
+Tasks in `Windows.code-workspace` run PowerShell scripts from `scripts/`. Most scripts follow this chain:
 
 ```
 path.ps1  →  template.ps1  →  interface.ps1 / target.ps1
 ```
 
-Each script dot-sources the next and communicates through environment variables prefixed with `OPENOCD_`.
+Scripts communicate through environment variables (all prefixed with `OPENOCD_`).
 
 ---
 
 ## OpenOCD Executables — path.ps1
 
-Every script starts by dot-sourcing `path.ps1`. This script searches the `openocd/` directory at the repo root for installed OpenOCD packages and sets two environment variables:
+All scripts start by running `path.ps1`, which searches `openocd/` for installed OpenOCD packages and sets:
 
 | Variable          | Content                                                                    |
 | ----------------- | -------------------------------------------------------------------------- |
 | `OPENOCD_EXE`     | Full path to the selected `openocd.exe`                                    |
 | `OPENOCD_SCRIPTS` | Full path to the matching `scripts/` folder (interface and target configs) |
 
-**Discovery logic:**
+**How it finds OpenOCD:**
 
-1. Scans `openocd/*/bin/openocd.exe` (xPack and ESP32 layout) and `openocd/*/openocd.exe` (Pico layout).
-2. If `OPENOCD_EXE` is already set in the environment, it is respected and the search is skipped.
-3. If exactly one executable is found it is used automatically. If multiple are found, the user is prompted to pick one.
-4. The scripts directory is resolved to the folder **sibling to the chosen executable** — this prevents cross-package config mismatches (e.g. using ESP32 OpenOCD with xPack scripts).
+1. Scans for `openocd.exe` in `openocd/*/bin/` (xPack/ESP32) and `openocd/*/` (Pico)
+2. If `OPENOCD_EXE` is already set, uses that and skips searching
+3. If one executable found, uses it automatically. If multiple found, prompts you to choose
+4. Finds the scripts directory next to the executable (prevents config mismatches)
 
-When the template and interface are known before OpenOCD selection, the scripts auto-prefer the matching bundled package. Interface capability takes priority over template name:
+When the template and interface are known, scripts auto-select the best OpenOCD package. Interface type wins over template name:
 
 | Condition                                        | Preferred package                 |
 | ------------------------------------------------ | --------------------------------- |
@@ -83,9 +81,9 @@ When the template and interface are known before OpenOCD selection, the scripts 
 | Template is `rp2040`, `rp2350`, `nrf52840`       | `openocd/pico/`                   |
 | Template is `stm32*` or unrecognised             | `openocd/xpack-openocd-0.12.0-7/` |
 
-> **Note**: The Pico bundle (`openocd/pico/`) does not include J-Link adapter support. When using a J-Link with RP2040/RP2350, the interface-priority rule applies and xPack is selected instead.
+**Note:** The Pico OpenOCD doesn't support J-Link. If you use J-Link with RP2040/RP2350, xPack is selected instead.
 
-The bundled packages under `openocd/` are:
+Available OpenOCD packages:
 
 | Folder                            | Variant           | Primary use                                   |
 | --------------------------------- | ----------------- | --------------------------------------------- |
@@ -97,7 +95,7 @@ The bundled packages under `openocd/` are:
 
 ## Template Selection — template.ps1
 
-After `path.ps1`, scripts that need to know which firmware to flash dot-source `template.ps1`. It sets:
+Scripts that need to know which firmware to flash run `template.ps1`. It sets:
 
 | Variable                | Content                                               |
 | ----------------------- | ----------------------------------------------------- |
@@ -106,7 +104,7 @@ After `path.ps1`, scripts that need to know which firmware to flash dot-source `
 | `OPENOCD_TARGET`        | Deduced OpenOCD target config (if not already set)    |
 | `OPENOCD_INTERFACE`     | Deduced OpenOCD interface config (if not already set) |
 
-**Template-to-config mapping** (built into `template.ps1`):
+**Template-to-config mapping:**
 
 | Template         | Target config  | Default interface   |
 | ---------------- | -------------- | ------------------- |
@@ -127,19 +125,19 @@ After `path.ps1`, scripts that need to know which firmware to flash dot-source `
 | `stm32g431`      | `stm32g4x.cfg` | `jlink.cfg`         |
 | `stm32h503`      | `stm32h5x.cfg` | `jlink.cfg`         |
 
-If the template is not in the map, or the target/interface configs cannot be found under `OPENOCD_SCRIPTS`, the user is prompted.
+If the template isn't in the map, or configs aren't found, you'll be prompted to select one.
 
 ---
 
 ## Interface and Target Selection — interface.ps1 / target.ps1
 
-These two helper scripts are dot-sourced when an interface or target has not yet been resolved (either from `template.ps1`'s map or from a command-line argument). Both follow the same pattern:
+These scripts run when the interface or target hasn't been resolved yet. They:
 
-1. List all `.cfg` files found under `$OPENOCD_SCRIPTS/interface/` or `$OPENOCD_SCRIPTS/target/`.
-2. Display a numbered menu.
-3. Set `OPENOCD_INTERFACE` or `OPENOCD_TARGET` to the chosen filename.
+1. List all `.cfg` files in `$OPENOCD_SCRIPTS/interface/` or `$OPENOCD_SCRIPTS/target/`
+2. Show a numbered menu
+3. Set `OPENOCD_INTERFACE` or `OPENOCD_TARGET` to your choice
 
-If `OPENOCD_INTERFACE` / `OPENOCD_TARGET` are already set (from `template.ps1` or a previous selection), the prompt is skipped entirely.
+If these variables are already set, the prompt is skipped.
 
 ---
 
@@ -147,19 +145,19 @@ If `OPENOCD_INTERFACE` / `OPENOCD_TARGET` are already set (from `template.ps1` o
 
 ### OpenOCD: Start Server
 
-**Task in `Windows.code-workspace`** → runs `scripts\openocd-server.ps1`
+**Task:** `Windows.code-workspace` → runs `scripts\openocd-server.ps1`
 
-Starts an OpenOCD GDB server and keeps it running in a dedicated terminal panel. This is the prerequisite for debugging from the DevContainer.
+Starts OpenOCD GDB server and keeps it running. Required for debugging from the container.
 
-**What the script does:**
+**What it does:**
 
-1. Pre-seeds the template name and applies any interface/target overrides.
-2. Dot-sources `path.ps1` → selects `OPENOCD_EXE` and `OPENOCD_SCRIPTS` (template and interface are already known, so package selection is automatic).
-3. Dot-sources `template.ps1` → deduces interface and target from the template map if not already set.
-4. If interface or target are still unset, dot-sources `interface.ps1` and `target.ps1` for interactive selection.
-5. For RP2040/RP2350 targets, prompts for QSPI flash size if `-QspiFlashSize` was not passed, and injects `set FLASHSIZE <hex>` before the target config is loaded.
-6. Determines reset strategy from interface/target and builds the OpenOCD command.
-7. Runs OpenOCD in the foreground. Exit code is propagated.
+1. Loads template name and any interface/target overrides
+2. Runs `path.ps1` → finds OpenOCD executable and scripts
+3. Runs `template.ps1` → figures out interface and target configs
+4. If still missing, runs `interface.ps1` and `target.ps1` for interactive selection
+5. For RP2040/RP2350, prompts for QSPI flash size if not specified
+6. Determines reset strategy from interface/target
+7. Runs OpenOCD and shows output
 
 Direct usage (non-interactive):
 
@@ -173,22 +171,22 @@ Direct usage (non-interactive):
 
 ### OpenOCD: Flash (Interactive)
 
-**Task in `Windows.code-workspace`** → runs `scripts\openocd-flash.ps1`
+**Task:** `Windows.code-workspace` → runs `scripts\openocd-flash.ps1`
 
-The task passes two inputs from VS Code: `${input:adapterSpeed}` and `${input:connectUnderReset}`.
+Flashes firmware to the chip. VS Code prompts for adapter speed and reset options.
 
-**What the script does:**
+**What it does:**
 
-1. `path.ps1` → executable and scripts path.
-2. `template.ps1` → template selection and config deduction.
-3. `interface.ps1` / `target.ps1` → if configs still unresolved.
-4. Scans `templates/<name>/build/` recursively for `.bin` and `.elf` files.
-5. Uses filename heuristics to classify files:
+1. Runs `path.ps1` → finds OpenOCD
+2. Runs `template.ps1` → selects template and configs
+3. Runs `interface.ps1` / `target.ps1` → if needed
+4. Searches `templates/<name>/build/` for `.bin` and `.elf` files
+5. Classifies files by name:
    - `bootloader*.bin` → bootloader
    - `partition[-_]table*.bin` → partition table
-   - remaining `.bin` → application (largest file wins on ties)
-6. Copies matched files to a temporary staging directory under `scripts/` to avoid path quoting issues.
-7. Constructs OpenOCD `-c` commands based on the template family:
+   - other `.bin` → application (picks largest if multiple)
+6. Copies files to temp staging directory (avoids path quoting issues)
+7. Builds OpenOCD flash commands based on platform:
 
    **ESP32 family** — uses `program_esp` with fixed flash offsets:
    - Bootloader: `0x0` (ESP32-C3) or `0x1000` (all others)
@@ -199,12 +197,12 @@ The task passes two inputs from VS Code: `${input:adapterSpeed}` and `${input:co
 
    **STM32** — uses `program <file>.elf verify reset exit`
 
-8. Runs OpenOCD with the assembled arguments.
-9. Cleans up the staging directory (unless `-KeepStaged` is passed).
+8. Runs OpenOCD with the flash commands
+9. Cleans up staging directory (unless you pass `-KeepStaged`)
 
-For RP2040 and RP2350, the helper layer also avoids forcing adapter-level `SRST` when using J-Link because those target scripts rely on `SYSRESETREQ` and explicitly note that `SRST` is not available.
+For RP2040/RP2350, the script doesn't use hardware reset (`SRST`) with J-Link because the Pico doesn't have that pin connected. It uses software reset (`SYSRESETREQ`) instead.
 
-Reset strategy is determined automatically from the interface and target:
+Reset strategy is picked automatically:
 
 | Condition                                 | `reset_config` applied                      |
 | ----------------------------------------- | ------------------------------------------- |
@@ -215,47 +213,47 @@ Reset strategy is determined automatically from the interface and target:
 | FTDI-based                                | `srst_only srst_nogate connect_assert_srst` |
 | Other / unknown                           | `none`                                      |
 
-**`-KeepOpenOCD`**: omits the trailing `exit` command so OpenOCD stays alive after flashing, allowing an immediate debugger attach.
+**`-KeepOpenOCD`**: Leaves OpenOCD running after flash so you can attach a debugger immediately.
 
 ---
 
 ### OpenOCD: Detect Hardware
 
-**Task in `Windows.code-workspace`** → runs `scripts\openocd-detect.ps1`
+**Task:** `Windows.code-workspace` → runs `scripts\openocd-detect.ps1`
 
-Probes which debug adapters are physically connected by trying interface configs one by one.
+Figures out which debug adapters are connected by trying interface configs.
 
-**What the script does:**
+**What it does:**
 
-1. `path.ps1` → executable and scripts path.
-2. Builds a list of candidate interface configs from `$OPENOCD_SCRIPTS/interface/` (all `.cfg` files, recursively). Any preferred interfaces (via `$env:OPENOCD_PREFERRED_INTERFACES`) are tried first.
-3. For each interface config, runs a short-lived OpenOCD instance:
+1. Runs `path.ps1` → finds OpenOCD
+2. Lists all interface configs from `$OPENOCD_SCRIPTS/interface/`. Tries preferred interfaces first if you set `$env:OPENOCD_PREFERRED_INTERFACES`
+3. For each config, runs a quick OpenOCD test:
    ```
    openocd -s <scripts> -f interface/<cfg> -c "adapter speed 1000" -c "init" -c "exit"
    ```
-4. Captures stdout+stderr and checks it against positive patterns (`JTAG tap`, `target halted`, `Connected to`, etc.) and negative patterns (`unable to find`, `libusb error`, etc.).
-5. Reports which interfaces produced a positive response — i.e. a device was actually found.
+4. Checks output for success patterns (`JTAG tap`, `target halted`, etc.) and failure patterns (`unable to find`, `libusb error`, etc.)
+5. Reports which interfaces found a device
 
-This is useful when you don't know which interface config to use for a connected adapter.
+Useful when you don't know which config matches your debug adapter.
 
 ---
 
-### OpenOCD: Target Info / Target Info + Select
+### OpenOCD: Target Info
 
-**Task in `Windows.code-workspace`** → runs `scripts\openocd-info.ps1` (with or without `-SelectTarget`)
+**Task:** `Windows.code-workspace` → runs `scripts\openocd-info.ps1`
 
-Identifies the connected MCU from JTAG IDs.
+Reads the chip's JTAG ID and suggests the correct target config.
 
-**What the script does:**
+**What it does:**
 
-1. `path.ps1` → executable and scripts path.
-2. `interface.ps1` → prompts for interface config.
-3. Runs OpenOCD with `init`, `targets`, `exit`:
+1. Runs `path.ps1` → finds OpenOCD
+2. Runs `interface.ps1` → prompts for interface
+3. Runs OpenOCD to read JTAG IDs:
    ```
    openocd -s <scripts> -f interface/<cfg> -c "adapter speed 1000" -c "init" -c "targets" -c "exit"
    ```
-4. Parses the output for JTAG ID patterns.
-5. Maps detected IDs to known target configs:
+4. Parses output for JTAG IDs
+5. Maps IDs to target configs:
 
    | JTAG ID      | Suggested target |
    | ------------ | ---------------- |
@@ -268,30 +266,31 @@ Identifies the connected MCU from JTAG IDs.
    | `0x3ba00477` | `stm32f1x.cfg`   |
    | `0x4ba00477` | `stm32f4x.cfg`   |
 
-6. **With `-SelectTarget`**: presents the suggested configs in a menu and sets `OPENOCD_TARGET` to the chosen one, so subsequent scripts (e.g. `openocd-server.ps1`) skip their own target prompt.
+6. **With `-SelectTarget`**: Shows a menu of suggested configs and sets `OPENOCD_TARGET` so other scripts don't prompt again.
 
 ---
 
-## Debugging from the DevContainer
+## Debugging from the Container
 
-1. In `Windows.code-workspace`, run the **OpenOCD: Start Server** task. Leave the terminal open — OpenOCD must stay running.
-2. In `DevContainer.code-workspace`, press **F5** and pick the matching launch configuration.
+1. In `Windows.code-workspace`: Run **OpenOCD: Start Server**. Leave it running.
+2. In `DevContainer.code-workspace`: Press **F5** and choose your debug config.
 
-All launch configurations in `DevContainer.code-workspace` use `"servertype": "external"` and connect to `host.docker.internal:3333`. No GDB server is started by VS Code — it simply attaches to the already-running OpenOCD process.
+The container's GDB connects to `host.docker.internal:3333`. VS Code doesn't start its own GDB server — it attaches to the OpenOCD already running on Windows.
 
-GDB paths per architecture:
+GDB binaries used:
 
-| Platform              | GDB binary                                |
-| --------------------- | ----------------------------------------- |
-| STM32, RP2040, RP2350 | `arm-none-eabi-gdb`                       |
-| ESP32, ESP32-S2/S3    | `xtensa-esp32-elf-gdb` (variant-specific) |
-| ESP32-C3, ESP32-C6    | `riscv32-esp-elf-gdb`                     |
+| Platform           | GDB binary                                |
+| ------------------ | ----------------------------------------- |
+| STM32, nRF52840    | `arm-zephyr-eabi-gdb`                     |
+| RP2040, RP2350     | `gdb-multiarch`                           |
+| ESP32, ESP32-S2/S3 | `xtensa-esp32-elf-gdb` (variant-specific) |
+| ESP32-C3, ESP32-C6 | `riscv32-esp-elf-gdb`                     |
 
 ---
 
-## Environment Variables Reference
+## Environment Variables
 
-These variables are used by the scripts to share state and can be pre-set to skip interactive prompts:
+Scripts use these to share state. Pre-set them to skip prompts:
 
 | Variable                       | Set by                           | Purpose                                                       |
 | ------------------------------ | -------------------------------- | ------------------------------------------------------------- |
@@ -304,7 +303,7 @@ These variables are used by the scripts to share state and can be pre-set to ski
 | `OPENOCD_ADAPTER_KHZ`          | user / env                       | Adapter speed override (kHz)                                  |
 | `OPENOCD_PREFERRED_INTERFACES` | user / env                       | Semicolon-separated list of interfaces to try first in detect |
 
-Pre-setting these avoids all interactive prompts. For example:
+Example - skip prompts by setting variables:
 
 ```powershell
 $env:OPENOCD_TEMPLATE_NAME = 'stm32f103'
@@ -317,7 +316,7 @@ $env:OPENOCD_TEMPLATE_NAME = 'stm32f103'
 
 ### Script exits with "OPENOCD_EXE not set or not found"
 
-`path.ps1` could not find any `openocd.exe` under `openocd/`. Run the **Install Windows Tools** task first to download and extract the bundled OpenOCD packages, or set `OPENOCD_EXE` manually:
+`path.ps1` can't find `openocd.exe` in `openocd/`. Run **Install Windows Tools** task first, or set it manually:
 
 ```powershell
 $env:OPENOCD_EXE = 'C:\path\to\openocd.exe'
@@ -325,11 +324,11 @@ $env:OPENOCD_EXE = 'C:\path\to\openocd.exe'
 
 ### "No interface configs discovered"
 
-`OPENOCD_SCRIPTS` does not point to a valid scripts directory or the directory structure is unexpected. Check which package was selected by `path.ps1` and verify the `share\openocd\scripts\interface\` folder exists.
+`OPENOCD_SCRIPTS` doesn't point to a valid directory. Check which OpenOCD package `path.ps1` selected and verify `share\openocd\scripts\interface\` exists.
 
-### GDB "Connection refused" from the container
+### GDB "Connection refused" from container
 
-OpenOCD is not running, or is running on a different port. Verify:
+OpenOCD isn't running or is on the wrong port. Check:
 
 ```powershell
 # On Windows host
@@ -337,17 +336,17 @@ netstat -an | findstr 3333
 # Should show: TCP  0.0.0.0:3333  LISTENING
 ```
 
-If the firewall blocks it, allow `openocd.exe` through Windows Defender Firewall for private networks.
+If your firewall blocks it, allow `openocd.exe` through Windows Defender Firewall.
 
 ### Detect Hardware finds nothing
 
-The adapter USB driver may not be installed:
-- **ST-Link**: install ST-Link drivers from ST's website
-- **J-Link** (clone): run Zadig, select the J-Link device, install **WinUSB** driver
-- **ESP-PROG**: uses an FTDI FT2232H chip — install FTDI VCP/D2XX drivers; no Zadig needed
-- **J-Link**: install the J-Link Software Pack from Segger
+Missing USB drivers:
+- **ST-Link**: Install ST-Link drivers from ST
+- **J-Link clone**: Run Zadig, install WinUSB driver
+- **ESP-PROG**: Install FTDI drivers (FT2232H chip)
+- **J-Link official**: Install J-Link Software Pack from Segger
 
-### Flash fails for ESP32 with incorrect offsets
+### Flash fails for ESP32 with wrong offsets
 
-The script uses fixed offsets (`0x1000` for bootloader on most ESP32, `0x0` for ESP32-C3). If your project uses a custom partition table with different offsets, use the **Flash: ESP32 via esptool.py** task instead, which reads offsets directly from the build's `flash_args` file.
+The script uses fixed offsets (bootloader at `0x1000` for most ESP32, `0x0` for ESP32-C3). If you have custom partition offsets, use **Flash: ESP32 via esptool.py** instead — it reads offsets from `build/flash_args`.
 
