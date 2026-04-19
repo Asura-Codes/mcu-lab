@@ -35,7 +35,7 @@ Windows host
   ┌──────────────────────────────────────────────────────┐
   │  openocd-server.ps1  ──►  openocd.exe                │
   │       GDB port 3333  ◄──────────────── USB debugger  │
-  │   Telnet port 4444                                    │
+  │   Telnet port 4444                                   │
   └────────────────────┬─────────────────────────────────┘
                        │ TCP localhost:3333
   Docker container     │

@@ -2,7 +2,9 @@
 
 ## Project Overview
 
-This is a **dual-workspace embedded development environment** supporting ESP32, Raspberry Pi Pico (RP2040/RP2350), and STM32 platforms. The architecture separates concerns between container-based building and Windows-based hardware access.
+This is a **dual-workspace embedded development environment** supporting ESP32, Raspberry Pi Pico (RP2040/RP2350), STM32, and nRF52840 platforms. The architecture separates container-based building from Windows-based hardware access.
+
+**Container Image**: `asuracodes/mcu-lab:base` (~26 GB) on DockerHub includes ESP-IDF 6.0, Pico SDK 2.2.0, Zephyr RTOS 4.2.2, Zephyr SDK 0.17.4, ARM GCC, and Arduino CLI.
 
 **Key Architecture**:
 
@@ -17,8 +19,8 @@ This is a **dual-workspace embedded development environment** supporting ESP32, 
 The project uses two workspace files for different purposes:
 
 1. **DevContainer.code-workspace**: Build environment in Docker container
-   - Building firmware with platform toolchains (ESP-IDF, Pico SDK, ARM GCC)
-   - Running GDB debugging client
+   - Building firmware with platform toolchains (ESP-IDF, Pico SDK, Zephyr RTOS, ARM GCC)
+   - Running GDB debugging client (arm-zephyr-eabi-gdb, gdb-multiarch, ESP GDB variants)
    - Artifact generation (.elf, .bin, .uf2 files)
 
 2. **Windows.code-workspace**: Hardware interface on Windows host
@@ -52,13 +54,15 @@ The project uses two workspace files for different purposes:
 │  │  [DevContainer.code-workspace]                   │   │
 │  │  ┌──────────────────────────────────────────┐   │   │
 │  │  │ Build Environment (No USB Access)        │   │   │
-│  │  │  - ESP-IDF, Pico SDK, ARM GCC            │   │   │
-│  │  │  - cmake, make, ninja                    │   │   │
+│  │  │  - ESP-IDF, Pico SDK, Zephyr RTOS        │   │   │
+│  │  │  - cmake, make, ninja, west              │   │   │
 │  │  │  - Build artifacts → /workspace/...      │   │   │
 │  │  │                                           │   │   │
 │  │  │ Debug Client Only                        │   │   │
-│  │  │  - arm-none-eabi-gdb                     │   │   │
-│  │  │  - riscv32-esp-elf-gdb                   │   │   │
+│  │  │  - arm-zephyr-eabi-gdb (STM32, nRF52)    │   │   │
+│  │  │  - gdb-multiarch (RP2040/RP2350)         │   │   │
+│  │  │  - riscv32-esp-elf-gdb (ESP32-C3/C6)     │   │   │
+│  │  │  - xtensa-esp-elf-gdb (ESP32 Xtensa)     │   │   │
 │  │  │  → Connects to host.docker.internal:3333│   │   │
 │  │  └──────────────────────────────────────────┘   │   │
 │  └──────────────────────────────────────────────────┘   │
@@ -117,6 +121,13 @@ esptool.py --chip esp32c3 --port COM3 write_flash 0x0 build/bootloader.bin 0x800
 
 **Important**: `IDF_PATH=/opt/esp/idf` is pre-set in container. Sourcing `export.sh` adds tools to PATH.
 
+**Container environment variables**:
+- `IDF_PATH=/opt/esp/idf`
+- `IDF_TOOLS_PATH=/opt/esp`
+- `PICO_SDK_PATH=/opt/pico-sdk`
+- `ZEPHYR_BASE=/opt/zephyrproject/zephyr`
+- `ZEPHYR_SDK_INSTALL_DIR=/opt/zephyr-sdk-0.17.4`
+
 ### Raspberry Pi Pico (RP2040, RP2350)
 
 **Build**:
@@ -141,17 +152,17 @@ picotool load -f build/rp2040_template.uf2
 
 **Important**: `PICO_SDK_PATH=/opt/pico-sdk` is pre-set. CMakeLists.txt must include SDK before `project()` declaration.
 
----
-
-### STM32 (STM32F103, extendable)
+### STM32 (STM32F103, STM32F411, STM32F412, STM32G431, STM32H503)
 
 **Build**:
 
 ```bash
 cd templates/stm32f103
-cmake -B build -S -DBOARD=stm32_min_dev .
+cmake -B build -DBOARD=stm32_min_dev .
 cmake --build build -j4
 ```
+
+**Board names**: `stm32_min_dev` (F103), `blackpill_f411ce` (F411), `nucleo_f412zg` (F412), `weact_stm32g431_core` (G431), `nucleo_h503rb` (H503)
 
 **Flash** (Windows host via OpenOCD):
 
@@ -161,7 +172,8 @@ openocd -f interface/jlink.cfg -f target/stm32f1x.cfg -c "program build/zephyr/z
 
 **Artifacts**: `build/zephyr/<project>.elf`, `build/zephyr/<project>.bin`
 
-**Toolchain**: Zephyr `arm-zephyr-eabi-gcc` is used for STM32 builds, providing HAL and RTOS features. CMakeLists.txt is configured for Zephyr build system.
+**Toolchain**: Zephyr RTOS with `arm-zephyr-eabi-gcc` provides HAL, CMSIS, and RTOS features. CMakeLists.txt is configured for Zephyr build system.
+**Environment**: `ZEPHYR_BASE=/opt/zephyrproject/zephyr` and `ZEPHYR_SDK_INSTALL_DIR=/opt/zephyr-sdk-0.17.4` are pre-set.
 
 ## Platform-Specific Conventions
 
@@ -200,9 +212,12 @@ templates/esp32-xxx/
 **Debugging**: OpenOCD with J-Link or CMSIS-DAP
 
 ### nRF52840 Template
+
 **Entry point**: Standard `int main(void)`
 **Toolchain**: Zephyr RTOS (includes Nordic HAL, CMSIS, and RTOS features)
-**Build system**: CMake with Zephyr SDK
+**Build system**: west (Zephyr meta-tool)
+**Build command**: `west build -b promicro_nrf52840`
+**Artifacts**: `build/zephyr/zephyr.elf`, `build/zephyr/zephyr.hex`
 **Debugging**: OpenOCD with J-Link or CMSIS-DAP
 
 ## Debugging Setup
@@ -217,9 +232,10 @@ for the same target with different (and often stale) settings.
 
 GDB binaries used in launch configs:
 
-- **ARM targets** (STM32, nRF52, RP2040/2350): `gdb-multiarch` (installed via apt)
-- **ESP32 RISC-V** (C3, C6): `riscv32-esp-elf-gdb` (symlinked to `/usr/local/bin/` by Dockerfile)
-- **ESP32 Xtensa** (ESP32, S2, S3, WROOM): `xtensa-esp-elf-gdb` (symlinked to `/usr/local/bin/` by Dockerfile)
+- **STM32 and nRF52840** (Zephyr targets): `arm-zephyr-eabi-gdb` (from Zephyr SDK, symlinked to `/usr/bin/`)
+- **RP2040 and RP2350** (Pico SDK targets): `gdb-multiarch` (installed via apt)
+- **ESP32 RISC-V** (C3, C6): `riscv32-esp-elf-gdb` (symlinked to `/usr/bin/` by Dockerfile)
+- **ESP32 Xtensa** (ESP32, S2, S3, WROOM): `xtensa-esp-elf-gdb` (variant-specific, symlinked to `/usr/bin/` by Dockerfile)
 
 ESP configs must include `"toolchainPath": ""` to prevent the global `cortex-debug.armToolchainPath`
 (`/usr/bin/`) from being applied — the ESP nm/objdump are not in `/usr/bin/`.
@@ -256,11 +272,12 @@ This script downloads and installs all required tools (OpenOCD, esptool, pico-sd
 ## Key Files and References
 
 - [README.md](README.md) - Project overview and quick start
-- [SETUP_GUIDE.md](SETUP_GUIDE.md) - Detailed build instructions per platform
-- [OpenOCD_guide.md](OpenOCD_guide.md) - Flashing and debugging workflows
-- `scripts/install-tools-windows.ps1` - Automated installation of all Windows tools (OpenOCD, esptool, picotool)
-- `.devcontainer/` - Docker environment definition
-- `templates/*/` - Platform-specific starter projects
+- [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) - Build instructions per platform
+- [docs/OpenOCD_guide.md](docs/OpenOCD_guide.md) - Flashing and debugging workflows with OpenOCD
+- [docs/workspace_structure_summaries.md](docs/workspace_structure_summaries.md) - Repository structure and design decisions
+- `scripts/install-tools-windows.ps1` - Automated installation of Windows tools (OpenOCD, picotool)
+- `.devcontainer/` - Docker environment definition (Dockerfile, docker-compose files)
+- `templates/*/` - platform-specific starter projects with build tasks
 
 ## Testing Changes
 
