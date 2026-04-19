@@ -1,0 +1,22 @@
+directories:
+  data: "flash/arduino-cli-data"
+  downloads: "flash/arduino-cli-data/downloads"
+  user: "flash/arduino-cli-data/user"
+  sketches: "templates"
+
+board_manager:
+  additional_urls:
+    - https://arduino.esp8266.com/stable/package_esp8266com_index.json
+    - https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+
+logging:
+  level: info
+
+telemetry:
+  enable: false
+
+sketch:
+  path: "templates"
+
+daemon:
+  enable: false

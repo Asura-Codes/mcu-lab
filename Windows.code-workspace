@@ -1,0 +1,489 @@
+{
+  "folders": [
+    {
+      "name": "📁 Root",
+      "path": "."
+    }
+  ],
+  "settings": {
+    // Editor Settings
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.rulers": [
+      80,
+      120
+    ],
+    "editor.trimAutoWhitespace": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.encoding": "utf8",
+    // File Associations
+    "files.associations": {
+      "*.ps1": "powershell",
+      "*.cfg": "properties",
+      "*.ld": "linkerscript"
+    },
+    // Terminal Settings (Windows)
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "terminal.integrated.fontSize": 13,
+    "terminal.integrated.scrollback": 10000,
+    "terminal.integrated.copyOnSelection": true,
+    // Search Settings
+    "search.exclude": {
+      "**/build": true,
+      "**/.git": true,
+      "**/*.elf": true,
+      "**/*.bin": true,
+      "**/*.hex": true,
+      "**/*.map": true,
+      "**/*.o": true,
+      "**/*.a": true
+    },
+    // Files to exclude from explorer
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "**/*.o": true
+    },
+    // Git Settings
+    "git.ignoreLimitWarning": true,
+    "git.autofetch": true,
+    // Workspace Telemetry
+    "telemetry.telemetryLevel": "off"
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-vscode.powershell",
+      "sanaajani.taskrunnercode"
+    ],
+    "unwantedRecommendations": [
+      "ms-vscode.cmake-tools",
+      "ms-vscode-remote.remote-containers"
+    ]
+  },
+  "workspaceExtensions": {
+    "disabled": [
+      "ms-vscode.cmake-tools",
+      "ms-vscode-remote.remote-containers"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      // ── OpenOCD ─────────────────────────────────────────────────────────────
+      {
+        "label": "OpenOCD: Start Server",
+        "type": "shell",
+        "command": "powershell",
+        "args": [
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "scripts\\openocd-server.ps1",
+          "-Interface",
+          "${input:openocdInterface}",
+          "-AdapterSpeed",
+          "${input:adapterSpeed}"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": true,
+          "panel": "dedicated",
+          "showReuseMessage": false,
+          "clear": true
+        },
+        "detail": "Start an OpenOCD GDB server (port 3333) for debugging from the DevContainer"
+      },
+      {
+        "label": "OpenOCD: Flash",
+        "type": "shell",
+        "command": "powershell",
+        "args": [
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "scripts\\openocd-flash.ps1",
+          "-Interface",
+          "${input:openocdInterface}",
+          "-AdapterSpeed",
+          "${input:adapterSpeed}"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": true,
+          "panel": "shared",
+          "showReuseMessage": false,
+          "clear": true
+        },
+        "detail": "Flash firmware via OpenOCD (prompts for template; interface overrideable)"
+      },
+      {
+        "label": "OpenOCD: Detect Hardware",
+        "type": "shell",
+        "command": "powershell",
+        "args": [
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "scripts\\openocd-detect.ps1"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": true,
+          "panel": "shared",
+          "showReuseMessage": false,
+          "clear": true
+        },
+        "detail": "Probe connected debug adapters by trying common OpenOCD interface configs"
+      },
+      {
+        "label": "OpenOCD: Target Info",
+        "type": "shell",
+        "command": "powershell",
+        "args": [
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "scripts\\openocd-info.ps1",
+          "-Interface",
+          "${input:openocdInterface}",
+          "-AdapterSpeed",
+          "${input:adapterSpeed}",
+          "-SelectTarget"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": true,
+          "panel": "shared",
+          "showReuseMessage": false,
+          "clear": true
+        },
+        "detail": "Probe chip via OpenOCD: shows CPU type, flash map, silicon revision"
+      },
+      // ── Flash: ESP32 family ─────────────────────────────────────────────────
+      {
+        "label": "Flash: ESP32 via esptool.py",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "-m",
+          "esptool",
+          "--chip",
+          "${input:esp32Chip}",
+          "--port",
+          "${input:comPort}",
+          "--baud",
+          "${input:esp32Baud}",
+          "write-flash",
+          "'@flash_args'"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}/templates/${input:esp32Template}/build"
+        },
+        "problemMatcher": [],
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": true,
+          "panel": "shared",
+          "showReuseMessage": false,
+          "clear": true
+        },
+        "detail": "Flash an ESP32 template via serial using esptool.py and the build's flash_args file"
+      },
+      {
+        "label": "Flash: arduino-cli upload",
+        "type": "shell",
+        "command": "powershell.exe",
+        "args": [
+          "-Command",
+          "./scripts/arduino-cli.cmd upload -p ${input:comPort} --fqbn ${input:arduinoFqbn} --input-dir templates/${input:arduinoTemplate}/build templates/${input:arduinoTemplate}"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": true,
+          "panel": "shared",
+          "showReuseMessage": false,
+          "clear": true
+        },
+        "detail": "Upload a sketch using the repo-local Arduino CLI (no global install)"
+      },
+      {
+        "label": "Serial Monitor (arduino-cli local)",
+        "type": "shell",
+        "command": "powershell.exe",
+        "args": [
+          "-Command",
+          "./scripts/arduino-cli.cmd monitor -p ${input:comPort} --config baudrate=${input:baudRate}"
+        ],
+        "isBackground": true,
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": true,
+          "panel": "dedicated",
+          "showReuseMessage": false,
+          "clear": true
+        },
+        "detail": "Open serial monitor using repo-local Arduino CLI (no global install)"
+      },
+      // ── Flash: Pico ─────────────────────────────────────────────────────────
+      {
+        "label": "Flash: Pi Pico via picotool",
+        "type": "shell",
+        "command": "${workspaceFolder:📁 Root}/flash/picotool/picotool/picotool.exe",
+        "args": [
+          "load",
+          "-f",
+          "${input:picoTemplate}_template.uf2"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}/templates/${input:picoTemplate}/build"
+        },
+        "problemMatcher": [],
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": true,
+          "panel": "shared",
+          "showReuseMessage": false,
+          "clear": true
+        },
+        "detail": "Flash a Raspberry Pi Pico (RP2040/RP2350) template via picotool (device must be in BOOTSEL mode)"
+      },
+      // ── Serial Monitor ───────────────────────────────────────────────────────
+      {
+        "label": "Serial Monitor",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "-m",
+          "serial.tools.miniterm",
+          "${input:comPort}",
+          "${input:baudRate}",
+          "--raw"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": true,
+          "panel": "dedicated",
+          "showReuseMessage": false,
+          "clear": true
+        },
+        "detail": "Open a serial monitor using Python miniterm (press Ctrl+] to exit)"
+      },
+      // ── Tools ────────────────────────────────────────────────────────────────
+      {
+        "label": "Install Windows Tools",
+        "type": "shell",
+        "command": "powershell",
+        "args": [
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "scripts\\install-tools-windows.ps1"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": true,
+          "panel": "shared",
+          "showReuseMessage": false,
+          "clear": true
+        },
+        "detail": "Download and install all required Windows tools (OpenOCD, esptool, picotool)"
+      },
+      {
+        "label": "Arduino CLI: Init (repo-local)",
+        "type": "shell",
+        "command": "powershell.exe",
+        "args": [
+          "-Command",
+          "./scripts/arduino-cli.cmd core update-index --additional-urls https://arduino.esp8266.com/stable/package_esp8266com_index.json; ./scripts/arduino-cli.cmd core install esp8266:esp8266; ./scripts/arduino-cli.cmd core install arduino:avr"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": true,
+          "panel": "shared",
+          "showReuseMessage": false,
+          "clear": true
+        },
+        "detail": "Initialize repo-local Arduino CLI data (update index + install esp8266 core)"
+      }
+    ],
+    "inputs": [
+      {
+        "id": "openocdInterface",
+        "type": "pickString",
+        "description": "OpenOCD interface config — 'auto' uses the template map default",
+        "options": [
+          "auto",
+          "stlink.cfg",
+          "jlink.cfg",
+          "cmsis-dap.cfg",
+          "esp_usb_jtag.cfg",
+          "ftdi/esp_ftdi.cfg"
+        ],
+        "default": "auto"
+      },
+      {
+        "id": "comPort",
+        "type": "promptString",
+        "description": "Serial port (e.g. COM3)",
+        "default": "COM3"
+      },
+      {
+        "id": "baudRate",
+        "type": "pickString",
+        "description": "Baud rate for serial monitor",
+        "options": [
+          "115200",
+          "921600",
+          "460800",
+          "230400",
+          "9600"
+        ],
+        "default": "115200"
+      },
+      {
+        "id": "esp32Chip",
+        "type": "pickString",
+        "description": "ESP32 chip variant",
+        "options": [
+          "esp32",
+          "esp32s2",
+          "esp32s3",
+          "esp32c3",
+          "esp32c6"
+        ],
+        "default": "esp32c3"
+      },
+      {
+        "id": "esp32Baud",
+        "type": "pickString",
+        "description": "Baud rate for esptool.py flash",
+        "options": [
+          "115200",
+          "230400",
+          "460800",
+          "921600"
+        ],
+        "default": "460800"
+      },
+      {
+        "id": "esp32Template",
+        "type": "pickString",
+        "description": "ESP32 template folder to flash",
+        "options": [
+          "esp32",
+          "esp32-wroom32",
+          "esp32-c3",
+          "esp32-c6",
+          "esp32-s2",
+          "esp32-s3"
+        ],
+        "default": "esp32-c3"
+      },
+      {
+        "id": "picoTemplate",
+        "type": "pickString",
+        "description": "Pico template folder to flash",
+        "options": [
+          "rp2040",
+          "rp2350"
+        ],
+        "default": "rp2040"
+      },
+      {
+        "id": "arduinoTemplate",
+        "type": "pickString",
+        "description": "Arduino template folder to upload",
+        "options": [
+          "arduino-uno",
+          "esp8266",
+          "esp8266-d1mini"
+        ],
+        "default": "esp8266-d1mini"
+      },
+      {
+        "id": "arduinoFqbn",
+        "type": "pickString",
+        "description": "FQBN for Arduino upload (select matching board/core)",
+        "options": [
+          "esp8266:esp8266:generic",
+          "esp8266:esp8266:d1_mini",
+          "arduino:avr:uno"
+        ],
+        "default": "esp8266:esp8266:d1_mini"
+      },
+      {
+        "id": "adapterSpeed",
+        "type": "pickString",
+        "description": "Select Adapter Speed (kHz) - Lower speed is more stable for long wires",
+        "options": [
+          "100",
+          "500",
+          "1000",
+          "2000",
+          "4000",
+          "8000"
+        ],
+        "default": "1000"
+      }
+    ]
+  }
+}

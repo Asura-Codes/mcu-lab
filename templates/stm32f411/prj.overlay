@@ -1,0 +1,24 @@
+/* Project devicetree overlay: route console to USB CDC ACM */
+
+/ {
+    chosen {
+        zephyr,console = &board_cdc_acm_uart;
+        zephyr,shell-uart = &board_cdc_acm_uart;
+    };
+};
+
+&zephyr_udc0 {
+    /* DP/DM pins for the STM32 USB driver; omit VBUS pin to disable hardware sensing */
+    pinctrl-0 = <&usb_otg_fs_dm_pa11 &usb_otg_fs_dp_pa12>;
+    pinctrl-names = "default";
+
+    board_cdc_acm_uart: board_cdc_acm_uart {
+        compatible = "zephyr,cdc-acm-uart";
+        status = "okay";
+    };
+};
+
+/* Disable onboard USART1 so it doesn't claim PA9 (VBUS) on this board */
+&usart1 {
+    status = "disabled";
+};

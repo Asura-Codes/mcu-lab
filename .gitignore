@@ -1,0 +1,118 @@
+# Build Artifacts
+build/
+build-*/
+*.elf
+*.bin
+*.hex
+*.map
+*.lst
+*.o
+*.a
+*.d
+*.su
+*.out
+
+# ESP-IDF specific
+sdkconfig.old
+dependencies.lock
+managed_components/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+*.ninja
+.ninja_deps
+.ninja_log
+build.ninja
+
+# Toolchain artifacts
+*.objdump
+*.size
+*.sym
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDEs and Editors
+.vscode/*
+!.vscode/c_cpp_properties.json
+!.vscode/settings.json
+!.vscode/tasks.json
+*.swp
+*.swo
+*~
+.idea/
+*.iml
+*.code-workspace.bak
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+log/
+
+# GDB
+.gdb_history
+
+# OpenOCD
+openocd.log
+openocd/
+
+# ESP-IDF Python Environment
+/opt/esp/python_env/
+
+# Pico SDK build temp files
+uf2/
+pioasm/
+*.pio
+*.uf2.tmp
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Package management
+.pio/
+.platformio/
+
+# Flash dumps
+flash_dump_*.bin
+
+# Serial monitor output
+serial_*.log
+
+# Flashing tools
+flash/

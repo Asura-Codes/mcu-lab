@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "ESP8266 D1 Mini: Build",
+            "type": "shell",
+            "command": "${workspaceFolder}/build.sh",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Build C++ project using Arduino CLI"
+        },
+        {
+            "label": "ESP8266 D1 Mini: Clean",
+            "type": "shell",
+            "command": "rm",
+            "args": [
+                "-rf",
+                "build"
+            ],
+            "problemMatcher": [],
+            "detail": "Clean build artifacts"
+        }
+    ]
+}

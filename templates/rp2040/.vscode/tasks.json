@@ -1,0 +1,50 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "RP2040: Configure CMake",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "-B",
+        "${workspaceFolder}/build",
+        "-S",
+        "${workspaceFolder}"
+      ],
+      "problemMatcher": [],
+      "detail": "Configure CMake build system for RP2040"
+    },
+    {
+      "label": "RP2040: Build",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--build",
+        "${workspaceFolder}/build",
+        "-j4"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "dependsOn": [
+        "RP2040: Configure CMake"
+      ],
+      "detail": "Build RP2040 firmware"
+    },
+    {
+      "label": "RP2040: Clean",
+      "type": "shell",
+      "command": "rm",
+      "args": [
+        "-rf",
+        "${workspaceFolder}/build"
+      ],
+      "problemMatcher": [],
+      "detail": "Remove build directory"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+/* nRF52840 Pro Micro devicetree overlay - empty by default */
+
+/ {
+};
+

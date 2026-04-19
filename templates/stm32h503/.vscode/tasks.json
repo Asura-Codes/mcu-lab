@@ -1,0 +1,66 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "STM32H503: Configure CMake",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-B",
+                "${workspaceFolder}/build",
+                "-DBOARD=nucleo_h503rb",
+                "${workspaceFolder}"
+            ],
+            "problemMatcher": [],
+            "detail": "Configure CMake build for STM32H503 (Nucleo-H503RB, Zephyr)"
+        },
+        {
+            "label": "STM32H503: Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build",
+                "-j4"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "STM32H503: Configure CMake"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Build STM32H503 firmware (Zephyr)"
+        },
+        {
+            "label": "STM32H503: Menuconfig",
+            "type": "shell",
+            "command": "west",
+            "args": [
+                "build",
+                "-b",
+                "nucleo_h503rb",
+                "-s",
+                ".",
+                "-t",
+                "menuconfig"
+            ],
+            "problemMatcher": [],
+            "detail": "Open menuconfig for STM32H503 (Zephyr)"
+        },
+        {
+            "label": "STM32H503: Clean",
+            "type": "shell",
+            "command": "rm",
+            "args": [
+                "-rf",
+                "${workspaceFolder}/build"
+            ],
+            "problemMatcher": [],
+            "detail": "Remove build directory"
+        }
+    ]
+}

@@ -1,0 +1,5 @@
+# ESP-WROOM-32 (ESP-WROOM-32D) - LED Blink
+cmake_minimum_required(VERSION 3.16)
+
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+project(wroom32_blink)

@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "name": "nRF52840",
+            "compilerPath": "/opt/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+            "intelliSenseMode": "linux-gcc-arm",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/build/**",
+                "/opt/zephyrproject/zephyr/include/**",
+                "/opt/zephyrproject/zephyr/kernel/include/**"
+            ],
+            "defines": [],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/**",
+                    "/opt/zephyrproject/zephyr/include/**"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
+        }
+    ],
+    "version": 4
+}

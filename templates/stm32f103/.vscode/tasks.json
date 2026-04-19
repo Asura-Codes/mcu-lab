@@ -1,0 +1,66 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "STM32F103: Configure CMake",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "-B",
+        "${workspaceFolder}/build",
+        "-DBOARD=stm32_min_dev",
+        "${workspaceFolder}"
+      ],
+      "problemMatcher": [],
+      "detail": "Configure CMake build for STM32F103 (Blue Pill, Zephyr)"
+    },
+    {
+      "label": "STM32F103: Build",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--build",
+        "${workspaceFolder}/build",
+        "-j4"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "dependsOn": [
+        "STM32F103: Configure CMake"
+      ],
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "detail": "Build STM32F103 firmware (Zephyr)"
+    },
+    {
+      "label": "STM32F103: Menuconfig",
+      "type": "shell",
+      "command": "west",
+      "args": [
+        "build",
+        "-b",
+        "stm32_min_dev",
+        "-s",
+        ".",
+        "-t",
+        "menuconfig"
+      ],
+      "problemMatcher": [],
+      "detail": "Open menuconfig for STM32F103 (Zephyr)"
+    },
+    {
+      "label": "STM32F103: Clean",
+      "type": "shell",
+      "command": "rm",
+      "args": [
+        "-rf",
+        "${workspaceFolder}/build"
+      ],
+      "problemMatcher": [],
+      "detail": "Remove build directory"
+    }
+  ]
+}

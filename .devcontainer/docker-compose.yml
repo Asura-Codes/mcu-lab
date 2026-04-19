@@ -1,0 +1,32 @@
+services:
+  dev:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspace:cached
+    environment:
+      # ESP-IDF environment is pre-configured in espressif/idf base image
+      # Only need to specify Pico SDK path
+      - PICO_SDK_PATH=/opt/pico-sdk
+      # Set locale to fix ESP-IDF menuconfig and other locale-dependent tools
+      - LC_ALL=C.UTF-8
+      - LANG=C.UTF-8
+    # Enable privileged mode for USB device access (debuggers, serial ports)
+    # Comment out if you prefer to manually add specific devices
+    privileged: true
+    # Alternative to privileged: uncomment and add specific devices as needed
+    # devices:
+    #   - /dev/ttyUSB0:/dev/ttyUSB0
+    #   - /dev/ttyACM0:/dev/ttyACM0
+    #   - /dev/bus/usb:/dev/bus/usb
+    # Add Linux capabilities for USB and debugging
+    cap_add:
+      - SYS_PTRACE
+      - NET_ADMIN
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    tty: true
+    stdin_open: true
+    command: sleep infinity

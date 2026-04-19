@@ -1,0 +1,66 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "STM32F412: Configure CMake",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-B",
+                "${workspaceFolder}/build",
+                "-DBOARD=nucleo_f412zg",
+                "${workspaceFolder}"
+            ],
+            "problemMatcher": [],
+            "detail": "Configure CMake build for STM32F412 (Nucleo-F412ZG, Zephyr)"
+        },
+        {
+            "label": "STM32F412: Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build",
+                "-j4"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "STM32F412: Configure CMake"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Build STM32F412 firmware (Zephyr)"
+        },
+        {
+            "label": "STM32F412: Menuconfig",
+            "type": "shell",
+            "command": "west",
+            "args": [
+                "build",
+                "-b",
+                "nucleo_f412zg",
+                "-s",
+                ".",
+                "-t",
+                "menuconfig"
+            ],
+            "problemMatcher": [],
+            "detail": "Open menuconfig for STM32F412 (Zephyr)"
+        },
+        {
+            "label": "STM32F412: Clean",
+            "type": "shell",
+            "command": "rm",
+            "args": [
+                "-rf",
+                "${workspaceFolder}/build"
+            ],
+            "problemMatcher": [],
+            "detail": "Remove build directory"
+        }
+    ]
+}

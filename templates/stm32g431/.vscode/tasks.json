@@ -1,0 +1,66 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "STM32G431: Configure CMake",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-B",
+                "${workspaceFolder}/build",
+                "-DBOARD=weact_stm32g431_core",
+                "${workspaceFolder}"
+            ],
+            "problemMatcher": [],
+            "detail": "Configure CMake build for STM32G431 (Nucleo-G431RB, Zephyr)"
+        },
+        {
+            "label": "STM32G431: Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build",
+                "-j4"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "STM32G431: Configure CMake"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Build STM32G431 firmware (Zephyr)"
+        },
+        {
+            "label": "STM32G431: Menuconfig",
+            "type": "shell",
+            "command": "west",
+            "args": [
+                "build",
+                "-b",
+                "weact_stm32g431_core",
+                "-s",
+                ".",
+                "-t",
+                "menuconfig"
+            ],
+            "problemMatcher": [],
+            "detail": "Open menuconfig for STM32G431 (Zephyr)"
+        },
+        {
+            "label": "STM32G431: Clean",
+            "type": "shell",
+            "command": "rm",
+            "args": [
+                "-rf",
+                "${workspaceFolder}/build"
+            ],
+            "problemMatcher": [],
+            "detail": "Remove build directory"
+        }
+    ]
+}

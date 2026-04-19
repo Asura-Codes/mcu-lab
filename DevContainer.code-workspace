@@ -1,0 +1,709 @@
+{
+  "folders": [
+    {
+      "name": "📁 Root",
+      "path": "."
+    },
+    {
+      "name": "ESP32 (Xtensa LX6)",
+      "path": "templates/esp32"
+    },
+    {
+      "name": "ESP32-C3 (RISC-V)",
+      "path": "templates/esp32-c3"
+    },
+    {
+      "name": "ESP32-C6 (RISC-V)",
+      "path": "templates/esp32-c6"
+    },
+    {
+      "name": "ESP32-S2 (Xtensa LX7)",
+      "path": "templates/esp32-s2"
+    },
+    {
+      "name": "ESP32-S3 (Xtensa LX7)",
+      "path": "templates/esp32-s3"
+    },
+    {
+      "name": "ESP-WROOM-32 (Xtensa LX6)",
+      "path": "templates/esp32-wroom32"
+    },
+    {
+      "name": "RP2040 (ARM Cortex-M0+)",
+      "path": "templates/rp2040"
+    },
+    {
+      "name": "RP2350 (ARM Cortex-M33)",
+      "path": "templates/rp2350"
+    },
+    {
+      "name": "nRF52840 (ARM Cortex-M4F)",
+      "path": "templates/nrf52840"
+    },
+    {
+      "name": "STM32F103 (ARM Cortex-M3)",
+      "path": "templates/stm32f103"
+    },
+    {
+      "name": "STM32F411 (ARM Cortex-M4F)",
+      "path": "templates/stm32f411"
+    },
+    {
+      "name": "STM32F412 (ARM Cortex-M4F)",
+      "path": "templates/stm32f412"
+    },
+    {
+      "name": "STM32G431 (ARM Cortex-M4F)",
+      "path": "templates/stm32g431"
+    },
+    {
+      "name": "STM32H503 (ARM Cortex-M33)",
+      "path": "templates/stm32h503"
+    },
+    {
+      "name": "ESP8266 (Xtensa L106)",
+      "path": "templates/esp8266"
+    },
+    {
+      "name": "ESP D1 Mini (Xtensa L106)",
+      "path": "templates/esp8266-d1mini"
+    },
+    {
+      "name": "Arduino Uno (ATmega328P)",
+      "path": "templates/arduino-uno"
+    }
+  ],
+  "settings": {
+    // General Editor Settings
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.rulers": [
+      80,
+      120
+    ],
+    "editor.wordWrap": "off",
+    "editor.trimAutoWhitespace": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.encoding": "utf8",
+    // File Associations
+    "files.associations": {
+      "*.c": "c",
+      "*.h": "c",
+      "*.cpp": "cpp",
+      "*.hpp": "cpp",
+      "*.s": "arm",
+      "*.S": "arm",
+      "*.ld": "linkerscript",
+      "*.cfg": "properties",
+      "sdkconfig": "properties",
+      "CMakeLists.txt": "cmake",
+      "Makefile": "makefile"
+    },
+    // C/C++ Extension Settings
+    "C_Cpp.default.cStandard": "c11",
+    "C_Cpp.default.cppStandard": "c++17",
+    "C_Cpp.default.intelliSenseMode": "gcc-arm",
+    "C_Cpp.default.compilerPath": "/usr/bin/arm-none-eabi-gcc",
+    "C_Cpp.errorSquiggles": "enabled",
+    "C_Cpp.intelliSenseEngine": "default",
+    "C_Cpp.autoAddFileAssociations": true,
+    "C_Cpp.enhancedColorization": "enabled",
+    "C_Cpp.formatting": "clangFormat",
+    "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 100 }",
+    // Terminal Settings
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.fontSize": 13,
+    "terminal.integrated.scrollback": 10000,
+    "terminal.integrated.copyOnSelection": true,
+    // Search Settings
+    "search.exclude": {
+      "**/build": true,
+      "**/build-*": true,
+      "**/.pio": true,
+      "**/node_modules": true,
+      "**/.git": true,
+      "**/CMakeFiles": true,
+      "**/*.elf": true,
+      "**/*.bin": true,
+      "**/*.hex": true,
+      "**/*.map": true,
+      "**/*.o": true,
+      "**/*.a": true,
+      "**/*.d": true
+    },
+    // Files to exclude from the explorer
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "**/CMakeFiles": false,
+      "**/*.o": true,
+      "**/*.d": true
+    },
+    // Git Settings
+    "git.ignoreLimitWarning": true,
+    "git.detectSubmodules": true,
+    "git.autofetch": true,
+    // CMake Settings
+    "cmake.configureOnOpen": false,
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.generator": "Ninja",
+    "cmake.saveBeforeBuild": true,
+    "cmake.clearOutputBeforeBuild": true,
+    // ESP-IDF Settings
+    "idf.port": "/dev/ttyUSB0",
+    "idf.flashType": "UART",
+    "idf.openOcdConfigs": [
+      "interface/ftdi/esp32_devkitj_v1.cfg",
+      "board/esp32-wrover-kit-3.3v.cfg"
+    ],
+    // Cortex-Debug Settings
+    // arm-zephyr-eabi-gdb is the Zephyr SDK GDB (symlinked to /usr/bin/ by Dockerfile).
+    // armToolchainPath /usr/bin/ finds both arm-none-eabi-nm/objdump (gcc-arm-none-eabi)
+    // and riscv32-esp-elf-nm/objdump / xtensa-esp-elf-nm/objdump (ESP toolchain symlinks).
+    "cortex-debug.gdbPath": "arm-zephyr-eabi-gdb",
+    "cortex-debug.armToolchainPath": "/usr/bin/",
+    "cortex-debug.showRTOS": true,
+    "cortex-debug.variableUseNaturalFormat": true,
+    // Python interpreter for devcontainer
+    "python.defaultInterpreterPath": "/usr/bin/python3",
+    // Workspace Telemetry
+    "telemetry.telemetryLevel": "off"
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-vscode.cpptools",
+      "ms-vscode.cmake-tools",
+      "marus25.cortex-debug",
+      "espressif.esp-idf-extension",
+      "editorconfig.editorconfig"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Build All ESP32 Templates",
+        "type": "shell",
+        "command": "bash",
+        "args": [
+          "-c",
+          "source /opt/esp/idf/export.sh && for dir in esp32 esp32-c3 esp32-c6 esp32-s2 esp32-s3 esp32-wroom32; do echo \"Building $dir...\"; cd templates/$dir && idf.py build && cd ../..; done"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "detail": "Build all ESP32 family templates (ESP-IDF)"
+      },
+      {
+        "label": "Build All Arduino Templates",
+        "type": "shell",
+        "command": "bash",
+        "args": [
+          "-c",
+          "for dir in esp8266 esp8266-d1mini arduino-uno; do echo \"Building $dir...\"; cd templates/$dir && ./build.sh && cd ../..; done"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "detail": "Build all Arduino-based templates (ESP8266 C++ and AVR)"
+      },
+      {
+        "label": "Build All Pico Templates",
+        "type": "shell",
+        "command": "bash",
+        "args": [
+          "-c",
+          "for dir in rp2040 rp2350; do echo \"Building $dir...\"; mkdir -p templates/$dir/build && cd templates/$dir/build && cmake .. && make -j4 && cd ../../..; done"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [
+          "$gcc"
+        ],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "detail": "Build all Raspberry Pi Pico templates"
+      },
+      {
+        "label": "Build All STM32 Templates",
+        "type": "shell",
+        "command": "bash",
+        "args": [
+          "-c",
+          "for pair in 'stm32_min_dev:stm32f103' 'blackpill_f411ce:stm32f411' 'nucleo_f412zg:stm32f412' 'weact_stm32g431_core:stm32g431' 'nucleo_h503rb:stm32h503'; do board=${pair%%:*}; dir=${pair##*:}; echo \"Building $dir ($board)...\"; cmake -B templates/$dir/build -DBOARD=$board templates/$dir && cmake --build templates/$dir/build -j4 || echo \"FAILED: $dir\"; done"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [
+          "$gcc"
+        ],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "detail": "Build all STM32 templates (Zephyr)"
+      },
+      {
+        "label": "Build All Templates",
+        "dependsOn": [
+          "Build All ESP32 Templates",
+          "Build All Arduino Templates",
+          "Build All Pico Templates",
+          "Build All STM32 Templates"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": [],
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "detail": "Build all mcu templates"
+      },
+      {
+        "label": "Clean All ESP32 Templates",
+        "type": "shell",
+        "command": "bash",
+        "args": [
+          "-c",
+          "source /opt/esp/idf/export.sh && for dir in esp32 esp32-c3 esp32-s2 esp32-s3 esp32-wroom32; do echo \"Cleaning $dir...\"; cd templates/$dir && idf.py fullclean && cd ../..; done"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "detail": "Clean all ESP32 family templates (ESP-IDF)"
+      },
+      {
+        "label": "Clean All Arduino Templates",
+        "type": "shell",
+        "command": "bash",
+        "args": [
+          "-c",
+          "for dir in esp8266 esp8266-d1mini arduino-uno; do echo \"Cleaning $dir...\"; rm -rf templates/$dir/build; done"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "detail": "Clean all Arduino-based templates (ESP8266 and AVR)"
+      },
+      {
+        "label": "Clean All Pico Templates",
+        "type": "shell",
+        "command": "bash",
+        "args": [
+          "-c",
+          "for dir in rp2040 rp2350; do echo \"Cleaning $dir...\"; rm -rf templates/$dir/build; done"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "detail": "Clean all Raspberry Pi Pico templates"
+      },
+      {
+        "label": "Clean All STM32 Templates",
+        "type": "shell",
+        "command": "bash",
+        "args": [
+          "-c",
+          "for d in stm32f103 stm32f411 stm32f412 stm32g431 stm32h503; do echo \"Cleaning $d...\"; rm -rf templates/$d/build; done"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "detail": "Clean all STM32 template build directories"
+      },
+      {
+        "label": "Clean nRF52840 Template",
+        "type": "shell",
+        "command": "bash",
+        "args": [
+          "-c",
+          "rm -rf templates/nrf52840/build"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:📁 Root}"
+        },
+        "problemMatcher": [],
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "detail": "Clean nRF52840 west build directory"
+      },
+      {
+        "label": "Clean All Templates",
+        "dependsOn": [
+          "Clean All ESP32 Templates",
+          "Clean All Arduino Templates",
+          "Clean All Pico Templates",
+          "Clean All STM32 Templates",
+          "Clean nRF52840 Template"
+        ],
+        "problemMatcher": [],
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "detail": "Clean all mcu templates"
+      }
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      // ── ARM Cortex (arm-zephyr-eabi-gdb; armToolchainPath /usr/bin/ → arm-none-eabi-nm/objdump) ──
+      {
+        "name": "Debug STM32F103 (Cortex-M3)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "cwd": "${workspaceFolder:STM32F103 (ARM Cortex-M3)}",
+        "servertype": "external",
+        "gdbTarget": "host.docker.internal:3333",
+        "gdbPath": "arm-zephyr-eabi-gdb",
+        "toolchainPrefix": "arm-zephyr-eabi",
+        "executable": "${workspaceFolder:STM32F103 (ARM Cortex-M3)}/build/zephyr/zephyr.elf",
+        "device": "STM32F103C8",
+        "runToEntryPoint": "main",
+        "showDevDebugOutput": "none",
+        "svdFile": "STM32F103.svd"
+      },
+      {
+        "name": "Debug STM32F411 (Cortex-M4F)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "cwd": "${workspaceFolder:STM32F411 (ARM Cortex-M4F)}",
+        "servertype": "external",
+        "gdbTarget": "host.docker.internal:3333",
+        "gdbPath": "arm-zephyr-eabi-gdb",
+        "toolchainPrefix": "arm-zephyr-eabi",
+        "executable": "${workspaceFolder:STM32F411 (ARM Cortex-M4F)}/build/zephyr/zephyr.elf",
+        "device": "STM32F411CE",
+        "runToEntryPoint": "main",
+        "showDevDebugOutput": "none",
+        "svdFile": "STM32F411.svd"
+      },
+      {
+        "name": "Debug STM32F412 (Cortex-M4F)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "cwd": "${workspaceFolder:STM32F412 (ARM Cortex-M4F)}",
+        "servertype": "external",
+        "gdbTarget": "host.docker.internal:3333",
+        "gdbPath": "arm-zephyr-eabi-gdb",
+        "toolchainPrefix": "arm-zephyr-eabi",
+        "executable": "${workspaceFolder:STM32F412 (ARM Cortex-M4F)}/build/zephyr/zephyr.elf",
+        "device": "STM32F412ZG",
+        "runToEntryPoint": "main",
+        "showDevDebugOutput": "none",
+        "svdFile": "STM32F412.svd"
+      },
+      {
+        "name": "Debug STM32G431 (Cortex-M4F)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "cwd": "${workspaceFolder:STM32G431 (ARM Cortex-M4F)}",
+        "servertype": "external",
+        "gdbTarget": "host.docker.internal:3333",
+        "gdbPath": "arm-zephyr-eabi-gdb",
+        "toolchainPrefix": "arm-zephyr-eabi",
+        "executable": "${workspaceFolder:STM32G431 (ARM Cortex-M4F)}/build/zephyr/zephyr.elf",
+        "device": "STM32G431RB",
+        "runToEntryPoint": "main",
+        "showDevDebugOutput": "none",
+        "svdFile": "STM32G431.svd"
+      },
+      {
+        "name": "Debug STM32H503 (Cortex-M33)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "cwd": "${workspaceFolder:STM32H503 (ARM Cortex-M33)}",
+        "servertype": "external",
+        "gdbTarget": "host.docker.internal:3333",
+        "gdbPath": "arm-zephyr-eabi-gdb",
+        "toolchainPrefix": "arm-zephyr-eabi",
+        "executable": "${workspaceFolder:STM32H503 (ARM Cortex-M33)}/build/zephyr/zephyr.elf",
+        "device": "STM32H503RB",
+        "runToEntryPoint": "main",
+        "showDevDebugOutput": "none",
+        "svdFile": "STM32H503.svd"
+      },
+      {
+        "name": "Debug nRF52840 (Cortex-M4F)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "cwd": "${workspaceFolder:nRF52840 (ARM Cortex-M4F)}",
+        "servertype": "external",
+        "gdbTarget": "host.docker.internal:3333",
+        "gdbPath": "arm-zephyr-eabi-gdb",
+        "toolchainPrefix": "arm-zephyr-eabi",
+        "executable": "${workspaceFolder:nRF52840 (ARM Cortex-M4F)}/build/zephyr/zephyr.elf",
+        "device": "nRF52840",
+        "preLaunchCommands": [
+          "monitor reset halt"
+        ],
+        "postLaunchCommands": [
+          "tbreak z_arm_fault",
+          "tbreak z_fatal_error"
+        ],
+        "runToEntryPoint": "main",
+        "showDevDebugOutput": "raw",
+        "svdFile": "/opt/zephyrproject/modules/hal/nordic/nrfx/mdk/nrf52840.svd"
+      },
+      // RP2040 and RP2350 use the same GDB config since both are supported by OpenOCD's rp2040.cfg
+      // Cortex-M0+ and Cortex-M33 share the same debug interface
+      // We use gdb-m
+      {
+        "name": "Debug RP2040 (Cortex-M0+)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "cwd": "${workspaceFolder:RP2040 (ARM Cortex-M0+)}",
+        "servertype": "external",
+        "gdbTarget": "host.docker.internal:3333",
+        "gdbPath": "gdb-multiarch",
+        "toolchainPrefix": "arm-none-eabi",
+        "executable": "${workspaceFolder:RP2040 (ARM Cortex-M0+)}/build/rp2040_template.elf",
+        "device": "RP2040",
+        "runToEntryPoint": "main",
+        "showDevDebugOutput": "none",
+        "svdFile": "/opt/pico-sdk/src/rp2040/hardware_regs/RP2040.svd"
+      },
+      {
+        "name": "Debug RP2350 (Cortex-M33)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "cwd": "${workspaceFolder:RP2350 (ARM Cortex-M33)}",
+        "servertype": "external",
+        "gdbTarget": "host.docker.internal:3333",
+        "gdbPath": "gdb-multiarch",
+        "toolchainPrefix": "arm-none-eabi",
+        "executable": "${workspaceFolder:RP2350 (ARM Cortex-M33)}/build/rp2350_template.elf",
+        "device": "RP2350",
+        "runToEntryPoint": "main",
+        "showDevDebugOutput": "none",
+        "svdFile": "/opt/pico-sdk/src/rp2350/hardware_regs/RP2350.svd"
+      },
+      // ── ESP32 RISC-V (riscv32-esp-elf-gdb; symlinked to /usr/bin/ by Dockerfile) ────────
+      // toolchainPrefix drives nm/objdump lookup: /usr/bin/riscv32-esp-elf-{nm,objdump}.
+      // loadFiles:[] skips GDB target-download. ESP32 flash layout (bootloader + partitions)
+      {
+        "name": "Debug ESP32-C3 (RISC-V)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "cwd": "${workspaceFolder:ESP32-C3 (RISC-V)}",
+        "servertype": "external",
+        "gdbTarget": "host.docker.internal:3333",
+        "gdbPath": "riscv32-esp-elf-gdb",
+        "toolchainPrefix": "riscv32-esp-elf",
+        "executable": "${workspaceFolder:ESP32-C3 (RISC-V)}/build/esp32c3_template.elf",
+        "device": "ESP32-C3",
+        "loadFiles": [],
+        "showDevDebugOutput": "none",
+        "interface": "jtag",
+        "runToEntryPoint": "app_main",
+        "debuggerArgs": [
+          "--command",
+          "${workspaceFolder:ESP32-C3 (RISC-V)}/.gdbinit"
+        ],
+        "svdFile": "esp32c3.svd"
+      },
+      {
+        "name": "Debug ESP32-C6 (RISC-V)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "cwd": "${workspaceFolder:ESP32-C6 (RISC-V)}",
+        "servertype": "external",
+        "gdbTarget": "host.docker.internal:3333",
+        "gdbPath": "riscv32-esp-elf-gdb",
+        "toolchainPrefix": "riscv32-esp-elf",
+        "executable": "${workspaceFolder:ESP32-C6 (RISC-V)}/build/esp32c6_template.elf",
+        "device": "ESP32-C6",
+        "loadFiles": [],
+        "showDevDebugOutput": "none",
+        "interface": "jtag",
+        "runToEntryPoint": "app_main",
+        "debuggerArgs": [
+          "--command",
+          "${workspaceFolder:ESP32-C6 (RISC-V)}/.gdbinit"
+        ],
+        "svdFile": "esp32c6.svd"
+      },
+      // ── ESP32 Xtensa (xtensa-*-gdb; symlinked to /usr/bin/ by Dockerfile) ──────────
+      // loadFiles:[] — same reason as RISC-V: flash separately, GDB attach only.
+      {
+        "name": "Debug ESP32 (Xtensa LX6)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "cwd": "${workspaceFolder:ESP32 (Xtensa LX6)}",
+        "servertype": "external",
+        "gdbTarget": "host.docker.internal:3333",
+        "gdbPath": "xtensa-esp32-elf-gdb",
+        "toolchainPrefix": "xtensa-esp32-elf",
+        "executable": "${workspaceFolder:ESP32 (Xtensa LX6)}/build/esp32_template.elf",
+        "device": "ESP32",
+        "loadFiles": [],
+        "showDevDebugOutput": "none",
+        "interface": "jtag",
+        "runToEntryPoint": "app_main",
+        "debuggerArgs": [
+          "--command",
+          "${workspaceFolder:ESP32 (Xtensa LX6)}/.gdbinit"
+        ],
+        "svdFile": "esp32.svd"
+      },
+      {
+        "name": "Debug ESP32-S2 (Xtensa LX7)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "cwd": "${workspaceFolder:ESP32-S2 (Xtensa LX7)}",
+        "servertype": "external",
+        "gdbTarget": "host.docker.internal:3333",
+        "gdbPath": "xtensa-esp32s2-elf-gdb",
+        "toolchainPrefix": "xtensa-esp32s2-elf",
+        "executable": "${workspaceFolder:ESP32-S2 (Xtensa LX7)}/build/esp32s2_template.elf",
+        "device": "ESP32-S2",
+        "loadFiles": [],
+        "showDevDebugOutput": "none",
+        "interface": "jtag",
+        "runToEntryPoint": "app_main",
+        "debuggerArgs": [
+          "--command",
+          "${workspaceFolder:ESP32-S2 (Xtensa LX7)}/.gdbinit"
+        ],
+        "svdFile": "esp32s2.svd"
+      },
+      {
+        "name": "Debug ESP32-S3 (Xtensa LX7)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "cwd": "${workspaceFolder:ESP32-S3 (Xtensa LX7)}",
+        "servertype": "external",
+        "gdbTarget": "host.docker.internal:3333",
+        "gdbPath": "xtensa-esp32s3-elf-gdb",
+        "toolchainPrefix": "xtensa-esp32s3-elf",
+        "executable": "${workspaceFolder:ESP32-S3 (Xtensa LX7)}/build/esp32s3_template.elf",
+        "device": "ESP32-S3",
+        "loadFiles": [],
+        "showDevDebugOutput": "none",
+        "interface": "jtag",
+        "runToEntryPoint": "app_main",
+        "debuggerArgs": [
+          "--command",
+          "${workspaceFolder:ESP32-S3 (Xtensa LX7)}/.gdbinit"
+        ],
+        "svdFile": "esp32s3.svd"
+      },
+      {
+        "name": "Debug ESP-WROOM-32 (Xtensa LX6)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "cwd": "${workspaceFolder:ESP-WROOM-32 (Xtensa LX6)}",
+        "servertype": "external",
+        "gdbTarget": "host.docker.internal:3333",
+        "gdbPath": "xtensa-esp32-elf-gdb",
+        "toolchainPrefix": "xtensa-esp32-elf",
+        "executable": "${workspaceFolder:ESP-WROOM-32 (Xtensa LX6)}/build/wroom32_blink.elf",
+        "device": "ESP32",
+        "loadFiles": [],
+        "showDevDebugOutput": "none",
+        "interface": "jtag",
+        "runToEntryPoint": "app_main",
+        "debuggerArgs": [
+          "--command",
+          "${workspaceFolder:ESP-WROOM-32 (Xtensa LX6)}/.gdbinit"
+        ],
+        "svdFile": "esp32.svd"
+      }
+    ]
+  }
+}

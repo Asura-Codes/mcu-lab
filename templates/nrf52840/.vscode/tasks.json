@@ -1,0 +1,66 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "nRF52840: Configure CMake",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-B",
+                "${workspaceFolder}/build",
+                "-DBOARD=promicro_nrf52840",
+                "${workspaceFolder}"
+            ],
+            "problemMatcher": [],
+            "detail": "Configure CMake build for Pro Micro nRF52840 (Zephyr)"
+        },
+        {
+            "label": "nRF52840: Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build",
+                "-j4"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "nRF52840: Configure CMake"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Build nRF52840 firmware (Zephyr)"
+        },
+        {
+            "label": "nRF52840: Menuconfig",
+            "type": "shell",
+            "command": "west",
+            "args": [
+                "build",
+                "-b",
+                "promicro_nrf52840",
+                "-s",
+                ".",
+                "-t",
+                "menuconfig"
+            ],
+            "problemMatcher": [],
+            "detail": "Open menuconfig for nRF52840 (Zephyr)"
+        },
+        {
+            "label": "nRF52840: Clean",
+            "type": "shell",
+            "command": "rm",
+            "args": [
+                "-rf",
+                "${workspaceFolder}/build"
+            ],
+            "problemMatcher": [],
+            "detail": "Remove nRF52840 build directory"
+        }
+    ]
+}

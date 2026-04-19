@@ -1,0 +1,51 @@
+{
+  "name": "MCU Development (ESP32, Pico, STM32, Arduino)",
+  "dockerComposeFile": [
+    "docker-compose.runtime.yml"
+  ],
+  "service": "dev",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "runServices": [
+    "dev"
+  ],
+  "remoteUser": "vscode",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "cmake.configureOnOpen": false,
+        "C_Cpp.default.compilerPath": "/usr/bin/arm-none-eabi-gcc",
+        "idf.espIdfPath": "/opt/esp/idf",
+        "idf.pythonBinPath": "/opt/esp/python_env/idf6.0_py3.12_env/bin/python",
+        "idf.toolsPath": "/opt/esp",
+        "idf.gitPath": "/usr/bin/git",
+        "raspberry-pi-pico.sdkPath": "/opt/pico-sdk",
+        "raspberry-pi-pico.cmakePath": "/usr/bin/cmake",
+        "raspberry-pi-pico.ninjaPath": "/usr/bin/ninja",
+        "arduino.path": "/usr/local/bin",
+        "arduino.commandPath": "/usr/local/bin/arduino-cli",
+        "arduino.useArduinoCli": true,
+        "arduino.additionalUrls": [
+          "https://arduino.esp8266.com/stable/package_esp8266com_index.json"
+        ]
+      },
+      "extensions": [
+        "ms-vscode.cmake-tools",
+        "ms-vscode.cpptools",
+        "ms-vscode.cpptools-extension-pack",
+        "twxs.cmake",
+        "mcu-debug.debug-tracker-vscode",
+        "marus25.cortex-debug",
+        "ms-python.python",
+        "xaver.clang-format",
+        "sanaajani.taskrunnercode",
+        "espressif.esp-idf-extension",
+        "raspberry-pi.raspberry-pi-pico",
+        "vscode-arduino.vscode-arduino-community",
+        "editorconfig.editorconfig"
+      ]
+    }
+  },
+  "postCreateCommand": "git config --global --add safe.directory '*' && echo '=== Multi-Platform Embedded Dev Environment ===' && echo 'ESP-IDF:' $IDF_PATH && echo 'Pico SDK:' $PICO_SDK_PATH && echo 'ARM GCC:' && arm-none-eabi-gcc --version | head -n 1 && mkdir -p \"$HOME/.config/gdb\" && printf 'set auto-load safe-path /\\n' > \"$HOME/.config/gdb/gdbinit\" && echo 'Wrote GDB config to' \"$HOME/.config/gdb/gdbinit\" && bash scripts/dev-patches.sh"
+}

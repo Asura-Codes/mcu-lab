@@ -1,0 +1,65 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "WROOM32: Build",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "source /opt/esp/idf/export.sh && idf.py build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            },
+            "detail": "Build ESP-WROOM-32 project"
+        },
+        {
+            "label": "WROOM32: Clean",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "source /opt/esp/idf/export.sh && idf.py fullclean"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "detail": "Clean ESP-WROOM-32 build directory"
+        },
+        {
+            "label": "WROOM32: Menuconfig",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "source /opt/esp/idf/export.sh && idf.py menuconfig"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "detail": "Open ESP32 configuration menu"
+        }
+    ]
+}
